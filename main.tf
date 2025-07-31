@@ -65,13 +65,29 @@ module "lb_security_group" {
   vpc_id      = module.vpc.vpc_id
 
   ingress_cidr_blocks = ["0.0.0.0/0"]
+  ingress_rules       = ["ssh-tcp"]
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      description = "SSH open to the world"
+      cidr_blocks = "0.0.0.0/0"
+    }
+  ]
 
   tags = {
     project     = "project-alpha",
-    environment = "dev"
+    environment = "development"
   }
 }
 
+
+resource "aws_ebs_volume" "unencrypted" {
+  availability_zone = "us-west-1a"
+  size              = 8
+  encrypted         = false # Intentional violation: unencrypted EBS volume
+}
 resource "random_string" "lb_id" {
   length  = 3
   special = false
